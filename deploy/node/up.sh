@@ -5,7 +5,7 @@ set -euo pipefail
 : "${QA_NAME:?}" "${QA_DOMAIN:?}"
 ROOT=/data/$QA_NAME
 cd "$(dirname "$0")/../.."
-mkdir -p "$ROOT"/{db,log,strategies,keys,tmp,caddy,backups}
+mkdir -p "$ROOT"/{db,log,strategies,keys,tmp,caddy,backups,license}
 [ -d "$ROOT/.env" ] && rmdir "$ROOT/.env"          # Docker makes a directory if the file was missing at first start
 python3 deploy/node/envfix.py "$ROOT/.env" .sample.env "$QA_DOMAIN"
 # The container runs as uid/gid 1000 (appuser): it must be able to read AND rewrite .env and write the data dirs.

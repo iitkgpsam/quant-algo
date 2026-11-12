@@ -27,4 +27,5 @@ services:
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - ${QA_ROOT}/caddy:/data
+      - ${QA_ROOT}/license:/srv/license:ro
     depends_on: [openalgo]

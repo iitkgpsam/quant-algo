@@ -35,10 +35,28 @@ Then follow the steps below from step 1. The VM, its IP and the bill stay yours.
 7. Run in Analyzer Mode for at least one full session and read the log before deciding anything else.
    Going live is your own decision on your own instance and is not part of this onboarding.
 
+## Approval and removal
+The strategy file only runs with an **approval token** from the platform owner (the `LICENSE_TOKEN` line at the top).
+The owner decides who is approved. A token expires (usually 30 days) and the owner can remove a member at any time: the
+strategy then closes anything it has open, opens nothing new, and stops within about 10 minutes. Removal affects the
+strategy file and the `samirmishra.com` web address only; your server, your Dhan account and your data stay yours.
+
 ## Rules that protect you
 - Never paste your Dhan key, secret or token into a chat, email or form other than your own instance.
 - Do not share your admin login.
 - Paper results are optimistic: fills are instant and funds are virtual.
+
+## For the platform owner: approving and removing (on your own server, qa1)
+```bash
+sudo apt-get install -y python3-cryptography
+sudo python3 /opt/quant-algo/deploy/tools/qa_license.py init                       # once; prints your PUBLIC key
+sudo python3 /opt/quant-algo/deploy/tools/qa_license.py issue --member alice --days 30   # APPROVE: prints alice's token
+sudo python3 /opt/quant-algo/deploy/tools/qa_license.py revoke --member alice            # REMOVE
+sudo python3 /opt/quant-algo/deploy/tools/qa_license.py list
+```
+Paste your public key into `LICENSE_PUBKEY` in the strategy file once, before you send it out. Honest limit: this controls the
+strategy file you distribute; it cannot stop someone running the open-source platform on their own server, and a member who
+edits their own copy of the file can remove the check.
 
 ## For the platform owner: adding a member
 ```bash
