@@ -8,5 +8,6 @@ echo "app health: $(curl -s -m 10 -o /dev/null -w %{http_code} localhost:5000/au
 echo "setup via caddy: $(curl -s -m 10 -o /dev/null -w %{http_code} -H "Host: $D" localhost/setup)"
 echo "branding: $(curl -s -m 10 -H "Host: $D" localhost/ | grep -c 'QUANT ALGO')"
 ls -la /data/$N/db | head; df -h /data | tail -1
+echo ".env perms: $(stat -c "%U:%G %a" /data/$N/.env)  (expect 1000:1000 600)"
 echo "LIVE flag in env: $(grep -c '^QA_LIVE_ENABLED' /data/$N/.env)  (0 = disabled)"
 docker logs --tail 15 $N-app 2>&1 | tail -15

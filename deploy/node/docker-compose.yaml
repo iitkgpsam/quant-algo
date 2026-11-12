@@ -14,6 +14,7 @@ services:
       - ${QA_ROOT}/log:/app/log
       - ${QA_ROOT}/strategies:/app/strategies
       - ${QA_ROOT}/keys:/app/keys
+      - ${QA_ROOT}/tmp:/app/tmp
       - ${QA_ROOT}/.env:/app/.env
     expose: ["5000", "8765"]
   caddy:
