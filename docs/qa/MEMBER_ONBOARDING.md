@@ -46,3 +46,9 @@ deploy/gcp/add-member.sh algoN.samirmishra.com     # creates the next instance, 
 ```
 Then add the DNS A record it prints, send the member their address, IP and the strategy file, and point them to this page.
 Each instance costs roughly US$35-40 per month in the owner's Google Cloud billing (estimate, verify before billing).
+
+## Updates
+The platform code is shared; your instance changes only when you choose. To update yours (keeps your data and keys):
+```bash
+sudo QA_NAME=member QA_DOMAIN=algo.yourdomain.com bash /opt/quant-algo/deploy/node/update.sh
+```
