@@ -12,6 +12,15 @@ credentials or your trades, and nobody else's instance can reach yours.
 1. Your web address (for example `https://algoN.samirmishra.com`) and your server's fixed IP.
 2. The Red Bar strategy file (sent to you directly, not published).
 
+## If you already have your own VM (no server from the owner needed)
+On a fresh Debian/Ubuntu VM you own, with ports 80 and 443 open and your web address already pointing at its public IP:
+```bash
+curl -fsSLO https://raw.githubusercontent.com/iitkgpsam/quant-algo/main/deploy/node/install-on-vm.sh
+sudo QA_DOMAIN=algo.yourdomain.com bash install-on-vm.sh
+```
+It installs everything, gets your HTTPS certificate and prints your server's IP. Use that IP as your Dhan static IP.
+Then follow the steps below from step 1. The VM, its IP and the bill stay yours.
+
 ## Your steps, in order
 1. **Open `/setup` and create your admin password immediately.** Until you do, anyone who learns the address could claim it.
 2. **Switch to Analyzer Mode** (lightning icon, top right) and confirm the badge says "Analyzer Mode".
