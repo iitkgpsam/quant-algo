@@ -1,0 +1,29 @@
+# Per-instance stack: OpenAlgo (built from THIS repo) + Caddy for automatic HTTPS.
+services:
+  openalgo:
+    build: {context: ../.., dockerfile: Dockerfile}
+    container_name: ${QA_NAME}-app
+    restart: unless-stopped
+    environment:
+      - TZ=Asia/Kolkata
+      - FLASK_ENV=production
+      - FLASK_DEBUG=0
+      - STRATEGY_MEMORY_LIMIT_MB=512
+    volumes:
+      - ${QA_ROOT}/db:/app/db
+      - ${QA_ROOT}/log:/app/log
+      - ${QA_ROOT}/strategies:/app/strategies
+      - ${QA_ROOT}/keys:/app/keys
+      - ${QA_ROOT}/.env:/app/.env
+    expose: ["5000", "8765"]
+  caddy:
+    image: caddy:2
+    container_name: ${QA_NAME}-caddy
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    environment:
+      - QA_DOMAIN=${QA_DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ${QA_ROOT}/caddy:/data
+    depends_on: [openalgo]

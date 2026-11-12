@@ -10,4 +10,4 @@ command -v docker >/dev/null || { apt-get update -y; apt-get install -y docker.i
 timedatectl set-timezone Asia/Kolkata
 [ -d /opt/quant-algo ] || git clone https://github.com/iitkgpsam/quant-algo /opt/quant-algo   # repo must be public (AGPL) or use deploy key
 cd /opt/quant-algo && git pull --ff-only
-QA_NAME="$NAME" QA_DOMAIN="$DOMAIN" bash deploy/instance/up.sh
+QA_NAME="$NAME" QA_DOMAIN="$DOMAIN" bash deploy/node/up.sh

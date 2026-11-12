@@ -1,0 +1,7 @@
+{$QA_DOMAIN} {
+	encode gzip
+	handle /ws* {
+		reverse_proxy openalgo:8765
+	}
+	reverse_proxy openalgo:5000
+}
