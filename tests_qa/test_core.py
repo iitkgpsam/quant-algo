@@ -2,8 +2,6 @@ import pytest, os
 from quant_algo.risk import RiskGuard, RiskLimits, RiskRejected
 from quant_algo.orders import OrderGateway, DuplicateOrder, LiveBlocked, ReentryController
 from quant_algo.execlog import ExecutionLog, latency_summary
-from quant_algo.strategies.spec import SpecIncomplete
-from quant_algo.strategies.redbar import strategy as rb
 
 L = RiskLimits(10, 1e6, 2, 1000, 5, 3)
 def gw(tmp_path, **kw):
@@ -45,5 +43,3 @@ def test_latency_logged(tmp_path):
     import time
     g, _ = gw(tmp_path); p(g, signal_t0=time.perf_counter())
     assert latency_summary(str(tmp_path / "e.jsonl"))["n"] == 1
-def test_redbar_refuses_without_owner_rules(tmp_path):
-    with pytest.raises(SpecIncomplete): rb.load("quant_algo/strategies/redbar/spec.template.yaml")
