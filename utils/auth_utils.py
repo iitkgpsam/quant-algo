@@ -819,19 +819,34 @@ def login_error_address(code, broker=None):
     return address
 
 
+def _failure_code(message):
+    """Map a failure to one of a few FIXED reason codes. The text itself is never shown."""
+    m = str(message or "").lower()
+    if "client id not found" in m:
+        return "dhan_key_format"
+    if "generate consent" in m:
+        return "dhan_consent_rejected"
+    if "consume consent" in m or "access token not found" in m:
+        return "dhan_token_rejected"
+    if "authentication validation failed" in m:
+        return "dhan_token_invalid"
+    return "login_failed"
+
+
 def handle_auth_failure(error_message, forward_url="broker.html"):
     """
     Handles common tasks after failed authentication.
     Returns JSON for AJAX requests, redirect for OAuth callbacks.
     """
     logger.error(f"Authentication error: {error_message}")
+    code = _failure_code(error_message)
     if is_ajax_request():
         return jsonify({"status": "error", "message": error_message}), 401
     else:
         # For OAuth callbacks, back to broker selection, which shows a fixed
         # sentence for the code. The broker's own message stays in the log:
         # it can carry text a trader cannot act on.
-        return redirect(login_error_address("login_failed"))
+        return redirect(login_error_address(code))
 
 
 def get_feed_token():

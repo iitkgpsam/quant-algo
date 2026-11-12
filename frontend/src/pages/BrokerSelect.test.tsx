@@ -318,7 +318,7 @@ describe('Switching truthfully', () => {
     const readsBefore = listReads
     fireEvent.click(confirm)
     expect(
-      await (await card('fivepaisaxts')).findByText('Could not reach OpenAlgo. Try again.')
+      await (await card('fivepaisaxts')).findByText('Could not reach QUANT ALGO. Try again.')
     ).toBeInTheDocument()
     expect(assigned).toEqual([])
     // Read again: the server still has Zerodha logged in.

@@ -68,6 +68,14 @@ const LOGIN_ERRORS: Record<string, string> = {
   signed_out:
     'Your OpenAlgo sign-in ended while this broker login was in progress. Sign in and log in to the broker again.',
 }
+LOGIN_ERRORS.dhan_key_format =
+  "The Dhan API key must be saved as ClientID:::APIKey (three colons, no spaces). Fix it under Broker Configuration."
+LOGIN_ERRORS.dhan_consent_rejected =
+  'Dhan refused to start the login. Check the Dhan API key and secret, that the app is active, and that its redirect URL is https://algo.samirmishra.com/dhan/callback.'
+LOGIN_ERRORS.dhan_token_rejected =
+  'Dhan did not issue an access token after your approval. Start the Dhan login again; if it repeats, re-check the API key and secret.'
+LOGIN_ERRORS.dhan_token_invalid =
+  'Dhan issued a token but it failed the account check. Check that the Dhan Data API subscription is active, then try again.'
 const LOGIN_FAILED = 'The broker login did not complete. Try again.'
 
 function loginErrorMessage(code: string): string {

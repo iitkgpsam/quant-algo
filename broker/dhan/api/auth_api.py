@@ -16,12 +16,13 @@ AUTH_BASE_URL = "https://auth.dhan.co"
 def generate_consent(dhan_client_id):
     """Step 1: Generate consent to initiate login session - requires valid Dhan Client ID"""
     try:
-        BROKER_API_KEY = os.getenv("BROKER_API_KEY")
-        BROKER_API_SECRET = os.getenv("BROKER_API_SECRET")
+        BROKER_API_KEY = (os.getenv("BROKER_API_KEY") or "").strip().strip("'\"")
+        BROKER_API_SECRET = (os.getenv("BROKER_API_SECRET") or "").strip().strip("'\"")
 
         # Extract client_id from API key if format is client_id:::api_key
         if ":::" in BROKER_API_KEY:
-            extracted_client_id, BROKER_API_KEY = BROKER_API_KEY.split(":::")
+            extracted_client_id, BROKER_API_KEY = (p.strip() for p in BROKER_API_KEY.split(":::", 1))
+            dhan_client_id = (dhan_client_id or "").strip()
             # Use extracted client_id if dhan_client_id not provided
             if not dhan_client_id:
                 dhan_client_id = extracted_client_id
@@ -67,7 +68,9 @@ def generate_consent(dhan_client_id):
                 return None, error_msg
         else:
             error_msg = f"Failed to generate consent: HTTP {response.status_code} - {response.text}"
-            logger.error("Failed to generate consent; HTTP status=%s", response.status_code)
+            # Dhan's own rejection text (e.g. invalid app_id/secret, IP not allowed) holds no credentials.
+            logger.error("Failed to generate consent; HTTP status=%s; dhan_says=%s",
+                         response.status_code, (response.text or "")[:300])
             return None, error_msg
 
     except Exception as e:
@@ -86,12 +89,12 @@ def get_login_url(consent_app_id):
 def consume_consent(token_id):
     """Step 3: Consume consent to get access token"""
     try:
-        BROKER_API_KEY = os.getenv("BROKER_API_KEY")
-        BROKER_API_SECRET = os.getenv("BROKER_API_SECRET")
+        BROKER_API_KEY = (os.getenv("BROKER_API_KEY") or "").strip().strip("'\"")
+        BROKER_API_SECRET = (os.getenv("BROKER_API_SECRET") or "").strip().strip("'\"")
 
         # Extract client_id from API key if format is client_id:::api_key
         if ":::" in BROKER_API_KEY:
-            extracted_client_id, BROKER_API_KEY = BROKER_API_KEY.split(":::")
+            extracted_client_id, BROKER_API_KEY = (p.strip() for p in BROKER_API_KEY.split(":::", 1))
 
         client = get_httpx_client()
 
@@ -128,6 +131,8 @@ def consume_consent(token_id):
             else:
                 return None, "Access token not found in response"
         else:
+            logger.error("Failed to consume consent; HTTP status=%s; dhan_says=%s",
+                         response.status_code, (response.text or "")[:300])
             return None, f"Failed to consume consent: {response.status_code}"
 
     except Exception as e:

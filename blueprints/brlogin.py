@@ -1346,11 +1346,11 @@ def _dhan_initiate_oauth():
         return _refuse_login("broker_unavailable", str(exc), status=409)
 
     # Get client_id from BROKER_API_KEY (format: client_id:::api_key)
-    BROKER_API_KEY = os.getenv("BROKER_API_KEY") or ""
+    BROKER_API_KEY = (os.getenv("BROKER_API_KEY") or "").strip().strip("'\"")
     client_id = None
 
     if ":::" in BROKER_API_KEY:
-        client_id, _ = BROKER_API_KEY.split(":::")
+        client_id = BROKER_API_KEY.split(":::", 1)[0].strip()
 
     if not client_id:
         error_message = (
