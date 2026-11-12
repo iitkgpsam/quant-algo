@@ -4,7 +4,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."; source instances.env
 NAME="${1:?instance name e.g. qa1}"
-DOMAIN=$(for i in $INSTANCES; do [[ ${i%%:*} == "$NAME" ]] && echo "${i#*:}"; done)
+DOMAIN=""; for i in $INSTANCES; do if [[ ${i%%:*} == "$NAME" ]]; then DOMAIN="${i#*:}"; fi; done
 [[ -n "$DOMAIN" ]] || { echo "unknown instance $NAME"; exit 1; }
 
 gcloud projects describe "$PROJECT_ID" >/dev/null 2>&1 || {
