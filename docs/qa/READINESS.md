@@ -22,3 +22,7 @@ e2-medium ~US$30/mo + 20GB boot ~$1.6 + 30GB pd-balanced ~$3.6 + static IP in us
 4. LIVE enablement is owner-only: `QA_LIVE_ENABLED=1` + `QA_LIVE_CONFIRM` on the VM; never done by me.
 ## Not touched
 quant.samirmishra.com and its repo/VMs/brokers: not accessed.
+
+## Update 2026-11-12 — qa1 provisioned
+- GCP project `quant-algo-ff011f` (isolated, new). VM `qa1`, asia-south1-b, e2-medium, reserved static IP **34.47.164.172**, 30GB data disk (auto-delete off), daily snapshots (14d), firewall 80/443 + IAP-only SSH.
+- Containers `qa1-app` and `qa1-caddy` started from this repo. App health and HTTPS NOT yet verified end to end (needs DNS; sandbox could not reach the VM). Run `deploy/check.sh https://algo.samirmishra.com` after DNS.
