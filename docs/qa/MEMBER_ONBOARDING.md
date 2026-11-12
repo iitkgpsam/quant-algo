@@ -1,5 +1,9 @@
 # QUANT ALGO - joining as a member
 
+**Anyone can join, no approval needed:** open the website, choose "Create account" (address `/join`) with your own email,
+and register your own instance. The platform owner can later stop a person's access through the website. He cannot see
+your broker, keys, data or trades.
+
 Every member gets a fully separate instance: own server, own fixed IP, own database, own Dhan account.
 Nothing is shared: not market data, not keys, not positions, not history. The platform owner cannot see your
 credentials or your trades, and nobody else's instance can reach yours.
@@ -35,30 +39,21 @@ Then follow the steps below from step 1. The VM, its IP and the bill stay yours.
 7. Run in Analyzer Mode for at least one full session and read the log before deciding anything else.
    Going live is your own decision on your own instance and is not part of this onboarding.
 
-## Approval and removal
-The strategy file only runs with an **approval token** from the platform owner (the `LICENSE_TOKEN` line at the top).
-The owner decides who is approved. A token expires (usually 30 days) and the owner can remove a member at any time: the
-strategy then closes anything it has open, opens nothing new, and stops within about 10 minutes. Removal affects the
-strategy file and the `samirmishra.com` web address only; your server, your Dhan account and your data stay yours.
-
 ## Rules that protect you
 - Never paste your Dhan key, secret or token into a chat, email or form other than your own instance.
 - Do not share your admin login.
 - Paper results are optimistic: fills are instant and funds are virtual.
 
-## For the platform owner: approving and removing (on your own server, qa1)
+## For the platform owner: the member portal (on your own server, qa1)
 ```bash
-sudo apt-get install -y python3-cryptography
-sudo python3 /opt/quant-algo/deploy/tools/qa_license.py init                       # once; prints your PUBLIC key
-sudo python3 /opt/quant-algo/deploy/tools/qa_license.py issue --member alice --days 30   # APPROVE: prints alice's token
-sudo python3 /opt/quant-algo/deploy/tools/qa_license.py revoke --member alice            # REMOVE
-sudo python3 /opt/quant-algo/deploy/tools/qa_license.py list
+sudo QA_PORTAL=1 QA_NAME=qa1 QA_DOMAIN=algo.samirmishra.com bash /opt/quant-algo/deploy/node/update.sh
+sudo docker exec -it qa1-portal python portal_app.py create-admin you@example.com      # once: your admin login
 ```
-Paste your public key into `LICENSE_PUBKEY` in the strategy file once, before you send it out. Honest limit: this controls the
-strategy file you distribute; it cannot stop someone running the open-source platform on their own server, and a member who
-edits their own copy of the file can remove the check.
+Then open `https://algo.samirmishra.com/join`, log in with that email: **Members** page with Suspend, Activate and Remove.
+Suspend blocks the person's login and their access check. Remove also wipes their instance address and keeps the email
+blocked from signing up again. Email addresses are not verified yet (no mail server is set up).
 
-## For the platform owner: adding a member
+## For the platform owner: adding a member by hand (optional)
 ```bash
 deploy/gcp/add-member.sh algoN.samirmishra.com     # creates the next instance, prints its fixed IP
 ```

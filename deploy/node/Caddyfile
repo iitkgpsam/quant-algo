@@ -7,11 +7,6 @@
 		query tokenId=*
 	}
 	redir @dhanreturn /dhan/callback?{query} 302
-	handle /qa-revoked.json {
-		root * /srv/license
-		rewrite * /revoked.json
-		file_server
-	}
 	handle /ws* {
 		reverse_proxy openalgo:8765
 	}

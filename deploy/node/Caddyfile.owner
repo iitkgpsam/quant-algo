@@ -1,0 +1,17 @@
+{$QA_DOMAIN} {
+	encode gzip
+	# Dhan returns the browser to the redirect URL registered in the Dhan portal. If that is the site root,
+	# forward the consent token to the real callback. The app still verifies this browser started the login.
+	@dhanreturn {
+		path /
+		query tokenId=*
+	}
+	redir @dhanreturn /dhan/callback?{query} 302
+	handle /join* {
+		reverse_proxy portal:8080
+	}
+	handle /ws* {
+		reverse_proxy openalgo:8765
+	}
+	reverse_proxy openalgo:5000
+}

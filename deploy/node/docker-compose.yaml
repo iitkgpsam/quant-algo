@@ -25,7 +25,20 @@ services:
     environment:
       - QA_DOMAIN=${QA_DOMAIN}
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./${QA_CADDYFILE:-Caddyfile}:/etc/caddy/Caddyfile:ro
       - ${QA_ROOT}/caddy:/data
-      - ${QA_ROOT}/license:/srv/license:ro
     depends_on: [openalgo]
+  portal:
+    profiles: ["portal"]            # only on the platform owner's server
+    build: {context: ../../portal}
+    container_name: ${QA_NAME}-portal
+    restart: unless-stopped
+    user: "1000:1000"
+    read_only: true
+    tmpfs: [/tmp]
+    env_file: ${QA_ROOT}/portal.env
+    environment:
+      - PORTAL_DB=/data/portal.db
+    volumes:
+      - ${QA_ROOT}/portal:/data
+    expose: ["8080"]

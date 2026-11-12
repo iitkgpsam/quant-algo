@@ -19,6 +19,7 @@ import {
   Sun,
   Wand2,
   Zap,
+  UserPlus,
 } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router'
@@ -288,6 +289,12 @@ export default function Home() {
                   <LogIn className="mr-2 h-5 w-5" />
                   Login
                 </Link>
+              </Button>
+              <Button size="lg" variant="outline" asChild>
+                <a href="/join">
+                  <UserPlus className="mr-2 h-5 w-5" />
+                  Create account
+                </a>
               </Button>
               <Button size="lg" variant="outline" asChild>
                 <Link to="/download">
