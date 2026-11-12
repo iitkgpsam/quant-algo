@@ -58,7 +58,7 @@ describe('Footer', () => {
 
     await waitFor(() => expect(json).toHaveBeenCalled())
     expect(screen.queryByText(/session/)).not.toBeInTheDocument()
-    expect(screen.getByText('Open Source Algo Platform for Everyone')).toBeInTheDocument()
+    expect(screen.getByText(/Based on/)).toBeInTheDocument()
     expect(separatorCount()).toBe(1)
   })
 
@@ -82,8 +82,8 @@ describe('Footer', () => {
 
     await request.catch(() => undefined)
     await waitFor(() => expect(fetch).toHaveBeenCalledWith('/auth/app-info'))
-    expect(screen.getByText('Copyright 2026')).toBeInTheDocument()
-    expect(screen.getByText('Open Source Algo Platform for Everyone')).toBeInTheDocument()
+    expect(screen.getByText('QUANT ALGO')).toBeInTheDocument()
+    expect(screen.getByText(/Based on/)).toBeInTheDocument()
     expect(separatorCount()).toBe(1)
   })
 })

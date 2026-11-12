@@ -128,8 +128,8 @@ export default function Home() {
                   <SheetDescription>Main navigation and quick access links</SheetDescription>
                 </SheetHeader>
                 <div className="flex items-center gap-2 mb-8">
-                  <img src="/logo.png" alt="OpenAlgo" className="h-8 w-8" />
-                  <span className="text-xl font-semibold">OpenAlgo</span>
+                  <img src="/logo.png" alt="QUANT ALGO" className="h-8 w-8" />
+                  <span className="text-xl font-semibold">QUANT ALGO</span>
                 </div>
                 <div className="flex flex-col gap-2">
                   <Link
@@ -210,8 +210,8 @@ export default function Home() {
             </Sheet>
 
             <Link to="/" className="flex items-center gap-2">
-              <img src="/logo.png" alt="OpenAlgo" className="h-8 w-8" />
-              <span className="text-xl font-bold hidden sm:inline">OpenAlgo</span>
+              <img src="/logo.png" alt="QUANT ALGO" className="h-8 w-8" />
+              <span className="text-xl font-bold hidden sm:inline">QUANT ALGO</span>
             </Link>
           </div>
 

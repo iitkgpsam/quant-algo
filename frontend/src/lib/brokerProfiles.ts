@@ -57,7 +57,7 @@ async function postJson(url: string, payload: unknown) {
   try {
     csrf = await csrfToken()
   } catch {
-    return { ok: false as const, body: { message: 'Could not reach OpenAlgo. Try again.' } }
+    return { ok: false as const, body: { message: 'Could not reach QUANT ALGO. Try again.' } }
   }
   try {
     const res = await fetch(url, {
@@ -69,7 +69,7 @@ async function postJson(url: string, payload: unknown) {
     const body = await res.json().catch(() => null)
     return { ok: res.ok && body?.status === 'success', body }
   } catch {
-    return { ok: false as const, body: { message: 'Could not reach OpenAlgo. Try again.' } }
+    return { ok: false as const, body: { message: 'Could not reach QUANT ALGO. Try again.' } }
   }
 }
 

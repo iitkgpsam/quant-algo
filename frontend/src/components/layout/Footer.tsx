@@ -32,18 +32,28 @@ export function Footer({ className }: FooterProps) {
       <div className="container mx-auto px-4 py-6">
         <div className="flex flex-col md:flex-row items-center justify-center gap-2 md:gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
-            <span>Copyright 2026</span>
+            <span>QUANT ALGO</span>
             <span className="hidden md:inline">|</span>
             <a
-              href="https://www.openalgo.in"
+              href="https://github.com/iitkgpsam/quant-algo"
               className="text-primary hover:underline font-medium"
               target="_blank"
               rel="noopener noreferrer"
             >
-              www.openalgo.in
+              Source (AGPL-3.0)
             </a>
           </div>
-          <span className="text-center">Open Source Algo Platform for Everyone</span>
+          <span className="text-center">
+            Based on{' '}
+            <a
+              href="https://github.com/marketcalls/openalgo"
+              className="hover:underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              OpenAlgo
+            </a>
+          </span>
           {version && (
             <>
               <span className="hidden md:inline">|</span>
