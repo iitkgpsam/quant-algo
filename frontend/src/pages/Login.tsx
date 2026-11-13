@@ -381,7 +381,11 @@ export default function Login() {
               <Info className="h-4 w-4" />
               <AlertTitle>First Time User?</AlertTitle>
               <AlertDescription>
-                Contact your administrator to set up your account.
+                This login is for the platform owner. To join,{' '}
+                <a href="/join" className="font-semibold underline">
+                  create your own account here
+                </a>
+                .
               </AlertDescription>
             </Alert>
 
