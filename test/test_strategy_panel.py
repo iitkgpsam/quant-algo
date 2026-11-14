@@ -30,6 +30,7 @@ def test_header_parsing(tmp_path):
 
 class _Upstream(BaseHTTPRequestHandler):
     body_seen = b""
+    header_seen = ""
     ctype = "application/json"
 
     def _send(self, data, ctype=None):
@@ -47,6 +48,7 @@ class _Upstream(BaseHTTPRequestHandler):
     def do_POST(self):
         n = int(self.headers.get("Content-Length", 0))
         type(self).body_seen = self.rfile.read(n)
+        type(self).header_seen = self.headers.get("X-QA-Panel", "")
         self._send(b'{"ok": true}')
 
     def log_message(self, *a):
@@ -100,6 +102,7 @@ def test_command_needs_header_and_is_forwarded(client, upstream):
     assert client.post("/python/abc/panel/api/cmd", json={"cmd": "pause"}).status_code == 403
     r = client.post("/python/abc/panel/api/cmd", json={"cmd": "pause"}, headers={"X-QA-Panel": "1"})
     assert r.status_code == 200 and json.loads(upstream.body_seen) == {"cmd": "pause"}
+    assert upstream.header_seen == "1"                                       # the strategy's own channel needs the header too
 
 
 def test_only_the_three_fixed_paths(client, upstream):

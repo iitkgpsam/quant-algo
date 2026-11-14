@@ -71,7 +71,7 @@ def panel(strategy_id, sub):
             method,
             f"http://127.0.0.1:{port}/{sub}",
             content=body,
-            headers={"Content-Type": "application/json"} if body else None,
+            headers={"Content-Type": "application/json", "X-QA-Panel": "1"} if body is not None else None,
             timeout=TIMEOUT,
         )
     except Exception:
