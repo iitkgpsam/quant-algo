@@ -98,6 +98,7 @@ from blueprints.react_app import (  # Import React frontend blueprint
     serve_react_app,
 )
 from blueprints.sandbox import sandbox_bp  # Import the sandbox blueprint
+from blueprints.strategy_panel import strategy_panel_bp  # Control panel door for hosted Python strategies
 from blueprints.scalping import scalping_bp  # Import the Scalping terminal blueprint
 from blueprints.search import search_bp
 from blueprints.security import security_bp  # Import the security blueprint
@@ -328,6 +329,8 @@ def create_app():
     app.register_blueprint(openscript_runner_bp)  # Register the OpenScript strategy runner
     app.register_blueprint(pnltracker_bp)  # Register PnL tracker blueprint
     app.register_blueprint(python_strategy_bp)  # Register Python strategy blueprint
+    app.register_blueprint(strategy_panel_bp)  # Strategy control panel door (loopback proxy)
+    csrf.exempt(strategy_panel_bp)  # commands carry the X-QA-Panel header instead of a form token
     app.register_blueprint(telegram_bp)  # Register Telegram blueprint
     app.register_blueprint(whatsapp_bp)  # Register WhatsApp blueprint
     app.register_blueprint(security_bp)  # Register Security blueprint

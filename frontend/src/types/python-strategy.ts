@@ -13,6 +13,8 @@ export interface PythonStrategy {
   error_message: string | null
   is_scheduled: boolean
   manually_stopped?: boolean
+  /** The strategy serves a control panel (declared in its file); opened through the owner's login. */
+  has_panel?: boolean
   schedule_start_time: string | null
   schedule_stop_time: string | null
   schedule_days: string[]

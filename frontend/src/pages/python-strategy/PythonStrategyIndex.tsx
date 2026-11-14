@@ -6,6 +6,7 @@ import {
   FileCode,
   FileText,
   HelpCircle,
+  LayoutDashboard,
   MoreVertical,
   Pencil,
   Play,
@@ -551,6 +552,36 @@ export default function PythonStrategyIndex() {
                       {strategy.schedule_start_time ? scheduleWindow(strategy) : 'Edit schedule'}
                     </TooltipContent>
                   </Tooltip>
+
+                  {strategy.has_panel && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        {strategy.status === 'running' ? (
+                          <Button variant="outline" size="sm" asChild>
+                            <a
+                              href={`/python/${strategy.id}/panel/`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              aria-label="Open panel"
+                            >
+                              <LayoutDashboard className="h-4 w-4" />
+                            </a>
+                          </Button>
+                        ) : (
+                          <span>
+                            <Button variant="outline" size="sm" disabled aria-label="Open panel">
+                              <LayoutDashboard className="h-4 w-4" />
+                            </Button>
+                          </span>
+                        )}
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {strategy.status === 'running'
+                          ? 'Open control panel'
+                          : 'Start the strategy to open its panel'}
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
 
                   <Tooltip>
                     <TooltipTrigger asChild>

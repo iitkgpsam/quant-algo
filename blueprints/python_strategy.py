@@ -51,6 +51,7 @@ from utils import runtime, stream_registry
 from utils.constants import CRYPTO_EXCHANGES
 from utils.db_sessions import releases_scoped_sessions
 from utils.session import check_session_validity, is_session_expiry_disabled
+from utils.strategy_panel_port import panel_port_for_file
 from utils.shutdown import register_shutdown_hook
 
 # Setup logging
@@ -3065,6 +3066,7 @@ def api_get_strategies():
                 "paused_message": config.get("paused_message"),
                 "process_id": config.get("process_id"),
                 "created_at": config.get("created_at"),
+                "has_panel": panel_port_for_file(config.get("file_path", "")) is not None,
             }
         )
 
