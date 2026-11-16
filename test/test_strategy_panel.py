@@ -81,6 +81,9 @@ def client(monkeypatch, tmp_path):
         return {"file_path": state["file"], "is_running": state["running"]}, None
 
     monkeypatch.setattr(sp, "_resolve", fake_resolve)
+    monkeypatch.setattr(sp, "CACHE_DIR", tmp_path / "cache")
+    sp._last.clear()
+    sp._saved_at.clear()
     app = Flask(__name__)
     app.secret_key = "x"
     app.register_blueprint(sp.strategy_panel_bp)
@@ -114,7 +117,7 @@ def test_only_the_three_fixed_paths(client, upstream):
 
 def test_not_running_and_no_panel_and_other_owner(client, upstream):
     client.state["running"] = False
-    assert client.get("/python/abc/panel/").status_code == 503
+    assert client.get("/python/abc/panel/").status_code == 200       # nothing cached yet: a friendly page, not an error
     client.state["running"] = True
     client.state["owner"] = "someone-else"
     assert client.get("/python/abc/panel/").status_code == 403
@@ -146,3 +149,37 @@ def test_signed_out_visitor_is_refused(monkeypatch, client, upstream):
     monkeypatch.setattr(us, "is_session_valid", lambda: False)
     r = client.get("/python/abc/panel/api/state", headers={"Accept": "application/json"})
     assert r.status_code == 401
+
+
+def test_stopped_strategy_keeps_showing_the_last_page_and_data(client, upstream, monkeypatch, tmp_path):
+    import blueprints.strategy_panel as sp
+
+    monkeypatch.setattr(sp, "CACHE_DIR", tmp_path / "cache")
+    sp._last.clear()
+    sp._saved_at.clear()
+
+    class State(_Upstream):
+        pass
+
+    upstream.ctype = "application/json"
+    assert client.get("/python/abc/panel/").status_code == 200
+    r = client.get("/python/abc/panel/api/state")                      # upstream answers {"path": ...}: a dict, so it is kept
+    assert r.status_code == 200
+    client.state["running"] = False
+    page = client.get("/python/abc/panel/")
+    assert page.status_code == 200 and b"panel" in page.data           # the last page
+    st = client.get("/python/abc/panel/api/state").get_json()
+    assert st["offline"] is True and "STOPPED" in st["banner"] and st["path"] == "/api/state"
+    cmd = client.post("/python/abc/panel/api/cmd", json={"cmd": "panic"}, headers={"X-QA-Panel": "1"})
+    assert cmd.status_code == 409                                      # commands are off while it is stopped
+    sp._last.clear()                                                   # an app restart: the saved copy is read back
+    assert client.get("/python/abc/panel/api/state").get_json()["offline"] is True
+
+
+def test_cache_ignores_unsafe_ids(tmp_path, monkeypatch):
+    import blueprints.strategy_panel as sp
+
+    monkeypatch.setattr(sp, "CACHE_DIR", tmp_path / "cache")
+    sp._last.clear()
+    assert sp._cache_path("../etc/passwd") is None
+    assert sp._recall("../etc/passwd") == {}

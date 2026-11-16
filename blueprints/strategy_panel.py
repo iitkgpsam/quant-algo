@@ -9,6 +9,12 @@ is theirs and running, and forwards three fixed paths to that loopback port. It 
     POST /python/<id>/panel/api/cmd     a command (needs the X-QA-Panel header, so a page on another site cannot send one)
 """
 
+import json
+import re
+import time
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+
 from flask import Blueprint, Response, jsonify, request, session
 
 from utils.httpx_client import get_httpx_client
@@ -24,6 +30,80 @@ ALLOWED = {("GET", ""), ("GET", "api/state"), ("POST", "api/cmd")}
 MAX_BODY = 2048
 TIMEOUT = 4.0
 PASS_TYPES = ("text/html", "application/json")
+
+# The panel is reachable at all times. While the strategy runs it is the strategy's own page. When the strategy is
+# stopped (night, weekend, between sessions) the door shows the last page and the last data it saw, marked as stopped,
+# and refuses commands. Nothing here comes from the browser: only what the strategy itself served is kept.
+CACHE_DIR = Path("db") / "panel_cache"
+_SAFE_ID = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
+_IST = timezone(timedelta(hours=5, minutes=30))
+_last: dict[str, dict] = {}
+_saved_at: dict[str, float] = {}
+SAVE_EVERY = 60.0
+
+
+def _cache_path(strategy_id: str):
+    return CACHE_DIR / f"{strategy_id}.json" if _SAFE_ID.match(strategy_id or "") else None
+
+
+def _remember(strategy_id: str, html=None, state=None) -> None:
+    c = _last.setdefault(strategy_id, {})
+    if html is not None:
+        c["html"] = html
+    if state is not None:
+        c["state"] = state
+        c["seen"] = time.time()
+    now = time.time()
+    path = _cache_path(strategy_id)
+    if path and now - _saved_at.get(strategy_id, 0) >= SAVE_EVERY and c.get("html") and c.get("state"):
+        try:
+            CACHE_DIR.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps(c), encoding="utf-8")
+            _saved_at[strategy_id] = now
+        except OSError:
+            logger.warning("Strategy panel cache not saved")
+
+
+def _recall(strategy_id: str) -> dict:
+    c = _last.get(strategy_id)
+    if c:
+        return c
+    path = _cache_path(strategy_id)
+    try:
+        if path and path.is_file():
+            c = json.loads(path.read_text(encoding="utf-8"))
+            if isinstance(c, dict) and isinstance(c.get("html"), str) and isinstance(c.get("state"), dict):
+                _last[strategy_id] = c
+                return c
+    except (OSError, ValueError):
+        pass
+    return {}
+
+
+def _stopped_state(c: dict) -> dict:
+    st = dict(c["state"])
+    seen = datetime.fromtimestamp(c.get("seen", 0), _IST).strftime("%d %b %H:%M")
+    st["banner"] = f"STRATEGY STOPPED. Showing the last data seen at {seen} IST. Commands are off until it runs again."
+    st["offline"] = True
+    return st
+
+
+def _offline(strategy_id: str, method: str, sub: str):
+    """What the door answers while the strategy is not running."""
+    c = _recall(strategy_id)
+    if method == "POST":
+        return jsonify(status="error", message="The strategy is not running, so commands are off."), 409
+    if sub == "api/state":
+        if c:
+            return Response(json.dumps(_stopped_state(c)), 200, {"Content-Type": "application/json", "Cache-Control": "no-store"})
+        return jsonify(status="stopped", banner="STRATEGY NOT RUNNING. Nothing to show yet.", offline=True), 200
+    if c:
+        return Response(c["html"], 200, {"Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-store"})
+    return _page(
+        "The strategy has not run yet, so there is nothing to show. Start it on the Python Strategies page, or wait "
+        "for its scheduled start. This page then fills in by itself and stays available afterwards.",
+        200,
+    )
 
 
 def _resolve(strategy_id: str, user_id: str):
@@ -62,7 +142,7 @@ def panel(strategy_id, sub):
     if port is None:
         return _page("This strategy has no control panel.", 404)
     if not config.get("is_running"):
-        return _page("The strategy is not running. Start it on the Python Strategies page, then reopen the panel.", 503)
+        return _offline(strategy_id, method, sub)
     body = request.get_data(cache=False)[: MAX_BODY + 1] if method == "POST" else None
     if body is not None and len(body) > MAX_BODY:
         return jsonify(status="error", message="Request too large"), 413
@@ -76,8 +156,20 @@ def panel(strategy_id, sub):
         )
     except Exception:
         logger.exception("Strategy panel upstream unreachable")
+        if _recall(strategy_id):
+            return _offline(strategy_id, method, sub)
         return _page("The strategy panel did not answer. It may still be starting; refresh in a few seconds.", 502)
     ctype = r.headers.get("content-type", "")
     if not ctype.startswith(PASS_TYPES):
         return _page("Unexpected answer from the strategy panel.", 502)
+    if r.status_code == 200 and method == "GET":
+        try:
+            if sub == "":
+                _remember(strategy_id, html=r.content.decode("utf-8"))
+            elif sub == "api/state":
+                data = json.loads(r.content)
+                if isinstance(data, dict):
+                    _remember(strategy_id, state=data)
+        except (ValueError, UnicodeDecodeError):
+            pass
     return Response(r.content, r.status_code, {"Content-Type": ctype, "Cache-Control": "no-store"})
