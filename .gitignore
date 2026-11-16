@@ -150,3 +150,4 @@ docs/audit/qa_audit/**/qa_live_*.csv
 docs/audit/qa_audit/**/~$*
 deploy/instances.env
 private/
+db/panel_cache/
